@@ -139,7 +139,27 @@ public class Main extends Application {
             Button signUpButton = new Button("Registrarse");
             styleButton(signUpButton);
 
+            signUpButton.setOnAction(e -> {
+                String email = nameField.getText().trim();
+                String password = passwordField2.getText().trim();
+                String confirmPassword = passwordField.getText().trim();
+
+                if (email.isEmpty() || password.isEmpty()) {
+                    showAlert("Campos incompletos", "Por favor complete el correo y la contraseña.");
+                    return;
+                }
+
+                if (!password.equals(confirmPassword)) {
+                    showAlert("Error", "Las contraseñas no coinciden.");
+                    return;
+                }
+
+                // Abrir nueva pantalla si todo está correcto
+                showPatientForm();
+            });
+
             formContainer.getChildren().addAll(title, nameBox, emailBox, passwordBox, signUpButton);
+
         }
     }
 
@@ -195,6 +215,17 @@ public class Main extends Application {
         tf.setPrefHeight(40);
         tf.setStyle("-fx-background-color: #EEEEEE; -fx-background-radius: 5; -fx-border-radius: 5;");
     }
+    private void styleTextField(ComboBox<?> cb) {
+        cb.setPrefWidth(250);
+        cb.setPrefHeight(40);
+        cb.setStyle("-fx-background-color: #EEEEEE; -fx-background-radius: 5; -fx-border-radius: 5;");
+    }
+    private void styleTextField(DatePicker dp) {
+        dp.setPrefWidth(250);
+        dp.setPrefHeight(40);
+        dp.setStyle("-fx-background-color: #EEEEEE; -fx-background-radius: 5; -fx-border-radius: 5;");
+    }
+
 
     private void styleButton(Button btn) {
         btn.setFont(Font.font(customFont.getFamily(), 15));
@@ -491,4 +522,130 @@ public class Main extends Application {
         window.showAndWait();
     }
 
+    private void showNextScreen() {
+        Stage newStage = new Stage();
+        newStage.setTitle("Datos del paciente");
+
+        VBox layout = new VBox(20);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(30));
+
+        Label label = new Label("Pantalla siguiente");
+        label.setFont(Font.font(customFont.getFamily(), 24));
+        label.setTextFill(Color.web("#13315C"));
+
+        Button closeButton = new Button("Cerrar");
+        styleButton(closeButton);
+        closeButton.setOnAction(e -> newStage.close());
+
+        layout.getChildren().addAll(label, closeButton);
+
+        Scene scene = new Scene(layout, 500, 300);
+        newStage.setScene(scene);
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.showAndWait();
+    }
+    private void showPatientForm() {
+        Stage window = new Stage();
+        window.setTitle("Datos personales del paciente");
+        window.initModality(Modality.APPLICATION_MODAL);
+
+        GridPane formGrid = new GridPane();
+        formGrid.setHgap(20);
+        formGrid.setVgap(15);
+        formGrid.setPadding(new Insets(30));
+
+        Label sectionTitle = new Label("Datos personales del paciente");
+        sectionTitle.setFont(Font.font(customFont.getFamily(), 16));
+        sectionTitle.setTextFill(Color.web("#13315C"));
+        GridPane.setColumnSpan(sectionTitle, 2);
+
+        TextField nombreField = new TextField();
+        nombreField.setPromptText("Ej. Juan Pérez Gómez");
+
+        DatePicker fechaNacimiento = new DatePicker();
+        fechaNacimiento.setPromptText("Ej. 1995-06-12");
+
+        ComboBox<String> generoCombo = new ComboBox<>();
+        generoCombo.getItems().addAll("Masculino", "Femenino", "Otro");
+        generoCombo.setPromptText("Seleccione una opción");
+
+        TextField curpField = new TextField();
+        curpField.setPromptText("Ej. PEGR950612HMCLNS08");
+
+        TextField telefonoField = new TextField();
+        telefonoField.setPromptText("Ej. 5512345678");
+
+
+        // Aplicar estilos
+        for (TextField field : new TextField[]{nombreField, curpField, telefonoField}) {
+            styleTextField(field);
+        }
+        styleTextField(generoCombo);
+        styleTextField(fechaNacimiento);
+
+        // Imagen y botón
+        VBox photoBox = new VBox(10);
+        photoBox.setAlignment(Pos.CENTER);
+        photoBox.setPrefWidth(200);
+
+        Label photo = new Label("?");
+        photo.setPrefSize(140, 160);
+        photo.setStyle("-fx-border-color: #999; -fx-border-radius: 10; -fx-alignment: center;");
+        photo.setFont(Font.font(36));
+
+        Label agregarFoto = new Label("Agregar foto");
+        agregarFoto.setFont(Font.font(customFont.getFamily(), 14));
+        agregarFoto.setTextFill(Color.web("#13315C"));
+
+        photoBox.getChildren().addAll(photo, agregarFoto);
+
+        Button aceptarBtn = new Button("Aceptar");
+        styleButton(aceptarBtn);
+        aceptarBtn.setOnAction(e -> window.close());
+
+        formGrid.add(sectionTitle, 0, 0);
+        formGrid.add(new Label("Nombre completo"), 0, 1);
+        formGrid.add(nombreField, 0, 2);
+
+        formGrid.add(new Label("Fecha de nacimiento"), 0, 3);
+        formGrid.add(fechaNacimiento, 0, 4);
+
+        formGrid.add(new Label("Género"), 0, 5);
+        formGrid.add(generoCombo, 0, 6);
+
+        formGrid.add(new Label("CURP"), 0, 7);
+        formGrid.add(curpField, 0, 8);
+
+        formGrid.add(new Label("Teléfono"), 0, 9);
+        formGrid.add(telefonoField, 0, 10);
+
+        VBox leftForm = new VBox(30, formGrid, aceptarBtn);
+        leftForm.setAlignment(Pos.TOP_CENTER);
+        leftForm.setPrefWidth(400);
+
+        HBox mainContent = new HBox(40, leftForm, photoBox);
+        mainContent.setPadding(new Insets(40));
+        mainContent.setAlignment(Pos.CENTER);
+
+        BorderPane root = new BorderPane();
+        root.setCenter(mainContent);
+        root.setStyle("-fx-background-color: white;");
+
+        Scene scene = new Scene(root, 800, 650);
+        window.setScene(scene);
+        window.setMinWidth(800);
+        window.setMinHeight(650);
+        window.centerOnScreen();       // Centra inicialmente
+        window.setResizable(true);     // Permitimos redimensionar
+
+        // Centramos de nuevo al maximizar
+        window.maximizedProperty().addListener((obs, wasMaximized, isNowMaximized) -> {
+            if (isNowMaximized) {
+                window.centerOnScreen();
+            }
+        });
+
+        window.showAndWait();
+    }
 }
