@@ -3,9 +3,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.animation.*;
@@ -14,10 +16,14 @@ import javafx.util.Duration;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.Random;
 import java.util.regex.Pattern;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 
 public class Main extends Application {
 
@@ -546,6 +552,7 @@ public class Main extends Application {
         newStage.showAndWait();
     }
     private void showPatientForm() {
+        ImageView photoView = new ImageView();
         Stage window = new Stage();
         window.setTitle("Datos personales del paciente");
         window.initModality(Modality.APPLICATION_MODAL);
@@ -585,20 +592,38 @@ public class Main extends Application {
         styleTextField(fechaNacimiento);
 
         // Imagen y botón
+        photoView.setFitWidth(140);
+        photoView.setFitHeight(160);
+        photoView.setPreserveRatio(true);
+        photoView.setStyle("-fx-border-color: #999; -fx-border-radius: 10;");
+
         VBox photoBox = new VBox(10);
         photoBox.setAlignment(Pos.CENTER);
         photoBox.setPrefWidth(200);
 
-        Label photo = new Label("?");
-        photo.setPrefSize(140, 160);
-        photo.setStyle("-fx-border-color: #999; -fx-border-radius: 10; -fx-alignment: center;");
-        photo.setFont(Font.font(36));
-
         Label agregarFoto = new Label("Agregar foto");
         agregarFoto.setFont(Font.font(customFont.getFamily(), 14));
         agregarFoto.setTextFill(Color.web("#13315C"));
+        agregarFoto.setStyle("-fx-cursor: hand;");
 
-        photoBox.getChildren().addAll(photo, agregarFoto);
+        photoBox.getChildren().addAll(photoView, agregarFoto);
+
+        agregarFoto.setOnMouseClicked(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Seleccionar imagen");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.gif")
+            );
+            File selectedFile = fileChooser.showOpenDialog(window);
+            if (selectedFile != null) {
+                Image image = new Image(selectedFile.toURI().toString());
+                photoView.setImage(image); // Ahora sí debe reconocer photoView
+            }
+        });
+
+
+
+
 
         Button aceptarBtn = new Button("Aceptar");
         styleButton(aceptarBtn);
